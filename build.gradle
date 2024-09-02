@@ -9,11 +9,36 @@ repositories {
     mavenCentral()
 }
 
+project.ext {
+    cucumberVersion = '5.6.0'
+}
+
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    //testImplementation 'io.cucumber:cucumber-java:8.11.0'
+    testImplementation 'io.cucumber:cucumber-junit:' + cucumberVersion
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.14.1'
+    testImplementation 'io.cucumber:cucumber-java:' + cucumberVersion
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
 }
 
 test {
     useJUnitPlatform()
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'html:reports/test-report', '--plugin', 'pretty', '--glue', 'src/test/resources']
+        }
+    }
 }
