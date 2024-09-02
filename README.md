@@ -1,0 +1,1 @@
+# magento_signup_automation
